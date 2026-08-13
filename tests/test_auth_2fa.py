@@ -27,7 +27,6 @@ from app.modules.auth.security import (
 )
 
 # Re-import the settings so that get_totp_uri uses the same app_name
-from app.core.config import settings
 
 
 # ---------------------------------------------------------------------------

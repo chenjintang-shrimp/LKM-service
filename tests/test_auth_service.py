@@ -1,6 +1,4 @@
-import datetime
 import hashlib
-import time
 
 import pytest
 from sqlalchemy import create_engine
@@ -386,7 +384,6 @@ class TestRefresh:
 
         # manually expire the token in DB
         tok_hash = hashlib.sha256(raw.encode()).hexdigest()
-        from app.db.models import now_iso as _now
         import datetime as dt
 
         tok = db.query(RefreshToken).filter(RefreshToken.token_hash == tok_hash).first()

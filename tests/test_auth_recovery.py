@@ -1,7 +1,6 @@
 """Tests for password recovery (service_recovery)."""
 
 import hashlib
-import re
 
 import pytest
 from sqlalchemy import create_engine

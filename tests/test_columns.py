@@ -27,7 +27,6 @@ from app.modules.columns.service import (
 import app.modules.auth.models  # noqa: F401 ensure auth tables registered
 from fastapi.testclient import TestClient
 from app.main import app
-from app.db.models import User
 from app.db.session import get_session
 from app.modules.auth.security import create_access_token, hashpwd
 from sqlalchemy.pool import StaticPool
@@ -66,7 +65,7 @@ def client(db):
 
 
 def _user(db, username="alice", email="alice@example.com"):
-    from app.db.models import User, Profile
+    from app.db.models import Profile
     user = User(
         username=username, email=email,
         hashed_password=hashpwd("secret123456"), account_level="normal",

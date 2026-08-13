@@ -33,7 +33,6 @@ from app.modules.auth.service import get_profile, update_profile
 from app.modules.auth.service_auth import (
     _consume_pending_normal_registration,
     _store_pending_normal_registration,
-    login_password,
 )
 from app.modules.auth.service_verify import (
     check_code_rate_limit,

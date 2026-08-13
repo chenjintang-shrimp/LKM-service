@@ -332,7 +332,6 @@ class TestCompletePasskeyLogin:
             })
             assert result["user_id"] == user.id
 
-        from sqlalchemy.orm import Session
         pk = db.query(PasskeyCredential).filter(PasskeyCredential.credential_id == cred_id).first()
         assert pk.sign_count == 2
 

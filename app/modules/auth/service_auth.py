@@ -6,17 +6,13 @@ from typing import Protocol, runtime_checkable
 
 from sqlalchemy.orm import Session
 
-
-@runtime_checkable
-class BackgroundTasksLike(Protocol):
-    def add_task(self, func, *args, **kwargs) -> None: ...
-
 from app.core.config import settings
 from app.core.err import BizError, CommonErr
-from app.modules.auth.errors import AuthErr
-from app.db.models import User, Profile, expires_at, now_iso
+from app.db.models import Profile, User, expires_at, now_iso
 from app.db.repo import consume_once, get_or_raise, isolated_update
-from app.modules.auth.models import AuditLog, MagicLink, RefreshToken, TOTP
+from app.modules.auth.errors import AuthErr
+from app.modules.auth.models import TOTP, AuditLog, MagicLink, RefreshToken
+from app.modules.auth.providers.base import EmailProvider
 from app.modules.auth.schemas import (
     UserLoginPassword,
     UserRegLocal,
@@ -29,7 +25,11 @@ from app.modules.auth.security import (
     verifypwd,
 )
 from app.modules.auth.service_verify import check_code_rate_limit
-from app.modules.auth.providers.base import EmailProvider
+
+
+@runtime_checkable
+class BackgroundTasksLike(Protocol):
+    def add_task(self, func, *args, **kwargs) -> None: ...
 
 _FAIL_LOCK_THRESHOLD = 5
 _FAIL_LOCK_MINUTES = 15
@@ -55,14 +55,14 @@ def _hash_refresh_token(raw: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
-def _store_refresh_token(db: Session, user_id: object, raw: str, mfa_verified: object = False) -> str:
+def _store_refresh_token(db: Session, user_id: int, raw: str, mfa_verified: bool = False) -> str:
     """持久化哈希后的刷新令牌并返回其过期时间戳字符串。"""
     days = settings.refresh_token_expire_days
     expires_str = expires_at(days=days)
     tok = RefreshToken(
-        user_id=int(user_id),  # type: ignore[arg-type]
+        user_id=user_id,
         token_hash=_hash_refresh_token(raw),
-        mfa_verified=bool(mfa_verified),
+        mfa_verified=mfa_verified,
         expires_at=expires_str,
     )
     db.add(tok)

@@ -19,7 +19,7 @@ def get_engine() -> Engine | None:
             connect_args=connect_args,
         )
         # 启用 SQLite 外键支持（必须按连接设置）
-        from sqlalchemy import event, text as sa_text
+        from sqlalchemy import event
 
         @event.listens_for(_engine, "connect")
         def _set_sqlite_pragma(dbapi_connection, connection_record):

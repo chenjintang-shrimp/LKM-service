@@ -1,6 +1,6 @@
 import os
-import subprocess
 import shutil
+import subprocess
 
 from app.core.config import settings
 from app.core.err import BizError, CommonErr

@@ -1,6 +1,5 @@
 import time
 
-import pytest
 
 from app.core.throttle import RateLimiter
 
