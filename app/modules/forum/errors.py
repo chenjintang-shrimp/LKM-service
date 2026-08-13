@@ -1,4 +1,4 @@
-from app.core.err import ErrCode, NS_FORUM, register
+from app.core.err import NS_FORUM, ErrCode, register
 
 
 class ForumErr(ErrCode):

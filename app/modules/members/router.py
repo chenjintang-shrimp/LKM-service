@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Query
 
 from app.core.err import respond
@@ -5,7 +7,6 @@ from app.modules.common import ApiResp, ListData
 from app.modules.members.models import ALL_TYPES
 from app.modules.members.schemas import Member
 from app.modules.members.service import get_members
-from typing import Annotated
 
 router = APIRouter(prefix="/members", tags=["members"])
 

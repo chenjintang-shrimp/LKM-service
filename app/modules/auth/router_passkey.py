@@ -8,6 +8,8 @@ GET    /auth/passkey/credentials        get_current_user        列出 Passkey �
 DELETE /auth/passkey/{cred_id}          get_current_user        删除 Passkey 凭据
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -26,7 +28,6 @@ from app.modules.auth.schemas import (
     PasskeyRegistrationOptionsResponse,
 )
 from app.modules.common import ApiResp
-from typing import Annotated
 
 router = APIRouter(prefix="/auth/passkey", tags=["auth-passkey"])
 

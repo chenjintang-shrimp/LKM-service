@@ -1,10 +1,9 @@
+import sys
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-
-import sys
 
 from app.api.router import api_router
 from app.core.config import settings

@@ -7,10 +7,10 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.err import BizError
-from app.modules.auth.errors import AuthErr
 from app.db.models import User
 from app.db.repo import consume_once, get_or_raise, isolated_update
-from app.modules.auth.models import RecoveryCode, TempTokenUsage, TOTP
+from app.modules.auth.errors import AuthErr
+from app.modules.auth.models import TOTP, RecoveryCode, TempTokenUsage
 from app.modules.auth.security import (
     decrypt_secret,
     encrypt_secret,

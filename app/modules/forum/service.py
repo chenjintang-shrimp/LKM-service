@@ -4,11 +4,17 @@ import re
 from sqlalchemy.orm import Session
 
 from app.core.err import BizError, CommonErr
-from app.modules.forum.errors import ForumErr
 from app.db.models import ForumComment, ForumPost, User
 from app.db.repo import get_or_raise
+from app.modules.forum.errors import ForumErr
 from app.modules.forum.models import FORUM_TABLE_PLAN
-from app.modules.forum.schemas import CommentCreate, CommentInfo, PageData, PostCreate, PostInfo
+from app.modules.forum.schemas import (
+    CommentCreate,
+    CommentInfo,
+    PageData,
+    PostCreate,
+    PostInfo,
+)
 
 
 def _author_name(user: User) -> str:

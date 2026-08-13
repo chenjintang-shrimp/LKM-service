@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -27,7 +29,6 @@ from app.modules.columns.service import (
     review_application,
 )
 from app.modules.common import ApiResp, ListData, ModuleStatus
-from typing import Annotated
 
 router = APIRouter(prefix="/columns", tags=["columns"])
 

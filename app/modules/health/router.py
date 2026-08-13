@@ -1,6 +1,5 @@
-from pydantic import BaseModel
-
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from app.core.err import respond
 from app.modules.common import ApiResp

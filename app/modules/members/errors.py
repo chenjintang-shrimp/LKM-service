@@ -1,4 +1,4 @@
-from app.core.err import ErrCode, NS_MEMBERS, register
+from app.core.err import NS_MEMBERS, ErrCode, register
 
 
 class MemberErr(ErrCode):

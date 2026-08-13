@@ -8,12 +8,13 @@ POST /auth/settings/bind-phone/request  {phone}  -> 通过 SmsProvider 发送验
 POST /auth/settings/bind-phone/verify   {phone, code} -> 绑定 + 如果是本地用户则升级
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
 from app.core.err import BizError, respond
-from app.modules.auth.errors import AuthErr
 from app.db.models import User
 from app.db.repo import get_or_raise
 from app.db.session import get_session
@@ -24,6 +25,7 @@ from app.modules.auth.deps import (
     get_email_provider,
     get_sms_provider,
 )
+from app.modules.auth.errors import AuthErr
 from app.modules.auth.providers.base import EmailProvider, SmsProvider
 from app.modules.auth.schemas import BindCodeRequestResponse, BindCodeVerifyResponse
 from app.modules.auth.service_verify import (
@@ -34,7 +36,6 @@ from app.modules.auth.service_verify import (
     create_phone_verification,
 )
 from app.modules.common import ApiResp
-from typing import Annotated
 
 router = APIRouter(prefix="/auth/settings", tags=["auth-settings"])
 

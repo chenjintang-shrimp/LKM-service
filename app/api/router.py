@@ -10,8 +10,8 @@ from app.modules.blog.git_http import git_router
 from app.modules.blog.router import router as blog_router
 from app.modules.boards.router import router as boards_router
 from app.modules.columns.router import router as columns_router
-from app.modules.forum.router import router as forum_router
 from app.modules.files.router import router as files_router
+from app.modules.forum.router import router as forum_router
 from app.modules.health.router import router as health_router
 from app.modules.members.router import router as members_router
 

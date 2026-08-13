@@ -50,8 +50,9 @@ def get_session():
         db.commit()
     except Exception:
         db.rollback()
-        from sqlalchemy.exc import IntegrityError
         import sys
+
+        from sqlalchemy.exc import IntegrityError
         exc_value = sys.exc_info()[1]
         if exc_value is not None and isinstance(exc_value, IntegrityError):
             from app.core.err import BizError

@@ -15,9 +15,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.err import BizError, ErrCode
-from app.modules.auth.errors import AuthErr
 from app.db.models import User, expires_at, now_iso
 from app.db.repo import consume_once, get_or_raise
+from app.modules.auth.errors import AuthErr
 from app.modules.auth.models import PasskeyChallenge, PasskeyCredential
 
 _CHALLENGE_TTL_MINUTES = 5
@@ -69,6 +69,7 @@ async def cleanup_expired_challenges() -> None:
     """后台任务：定期清理已过期或已被消费的挑战码。"""
     import asyncio
     import logging
+
     from app.db.session import new_session
 
     _log = logging.getLogger("passkey.cleanup")
@@ -78,7 +79,8 @@ async def cleanup_expired_challenges() -> None:
         try:
             db = new_session()
             try:
-                from sqlalchemy import delete as sa_delete, or_
+                from sqlalchemy import delete as sa_delete
+                from sqlalchemy import or_
                 now = now_iso()
                 result = db.execute(
                     sa_delete(PasskeyChallenge).where(

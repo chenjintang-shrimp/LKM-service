@@ -7,16 +7,18 @@ POST   /auth/2fa/verify          public (temp_token)     登录时验证 2FA
 DELETE /auth/2fa                  RequireLevel("normal")  禁用 2FA
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.err import BizError, respond
-from app.modules.auth.errors import AuthErr
 from app.db.models import User, expires_at, now_iso
 from app.db.repo import consume_once
 from app.db.session import get_session
 from app.modules.auth import service_2fa
 from app.modules.auth.deps import CurrentUser, RequireLevel
+from app.modules.auth.errors import AuthErr
 from app.modules.auth.models import SetupTransaction
 from app.modules.auth.schemas import (
     TOTPConfirmResponse,
@@ -30,7 +32,6 @@ from app.modules.auth.schemas import (
     TOTPVerifyResponse,
 )
 from app.modules.common import ApiResp
-from typing import Annotated
 
 router = APIRouter(prefix="/auth/2fa", tags=["auth-2fa"])
 
@@ -38,6 +39,7 @@ router = APIRouter(prefix="/auth/2fa", tags=["auth-2fa"])
 def _decode_setup_temp_token(temp_token: str) -> tuple[str, int]:
     """解码并验证 setup 临时令牌，返回 (token_hash, user_id)。"""
     import hashlib
+
     from app.modules.auth.security import decode_temp_token
 
     try:
@@ -123,7 +125,10 @@ def setup_2fa_complete_temp(
 
 def _issue_admin_setup_tokens(db: Session, user) -> tuple[str, str]:
     from app.modules.auth.security import create_access_token
-    from app.modules.auth.service_auth import _generate_refresh_token, _store_refresh_token
+    from app.modules.auth.service_auth import (
+        _generate_refresh_token,
+        _store_refresh_token,
+    )
     access_token = create_access_token(
         user_id=user.id,
         account_level=user.account_level,

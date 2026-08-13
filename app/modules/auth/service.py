@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
-from app.modules.auth.errors import AuthErr
 from app.db.models import Profile
 from app.db.repo import get_or_raise
+from app.modules.auth.errors import AuthErr
 from app.modules.auth.schemas import ProfileInfo, ProfileUpdate
 
 

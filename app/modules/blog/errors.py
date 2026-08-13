@@ -1,4 +1,4 @@
-from app.core.err import ErrCode, NS_BLOG, register
+from app.core.err import NS_BLOG, ErrCode, register
 
 
 class BlogErr(ErrCode):

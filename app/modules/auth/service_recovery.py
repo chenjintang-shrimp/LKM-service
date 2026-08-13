@@ -3,10 +3,10 @@
 from sqlalchemy.orm import Session
 
 from app.core.err import BizError, CommonErr
-from app.modules.auth.errors import AuthErr
 from app.db.models import User, expires_at, now_iso
 from app.db.repo import consume_once, get_or_raise
-from app.modules.auth.models import RecoveryTransaction, TOTP
+from app.modules.auth.errors import AuthErr
+from app.modules.auth.models import TOTP, RecoveryTransaction
 from app.modules.auth.security import hashpwd
 from app.modules.auth.service_auth import (
     BackgroundTasksLike,
@@ -18,6 +18,7 @@ from app.modules.auth.service_verify import (
     consume_email_code,
     consume_phone_code,
 )
+
 
 def _find_user_by_contact(db: Session, field: str, value: str) -> User:
     """通过邮箱或手机号查找用户。"""
@@ -258,9 +259,10 @@ def recover_admin_verify_contact(db: Session, txn_id: str, code: str) -> dict:
 
 def recover_admin_verify_totp(db: Session, txn_id: str, temp_token: str) -> dict:
     """第 3 步：确认管理员已通过此恢复事务的 2FA 验证。"""
-    from app.modules.auth.security import decode_temp_token
-    from app.modules.auth.models import TempTokenUsage
     import hashlib
+
+    from app.modules.auth.models import TempTokenUsage
+    from app.modules.auth.security import decode_temp_token
 
     txn = _get_recovery_txn(db, txn_id)
 

@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.err import BizError
-from app.modules.auth.errors import AuthErr
 from app.db.models import Profile, User, expires_at, now_iso
 from app.db.repo import consume_once, get_or_raise
+from app.modules.auth.errors import AuthErr
 from app.modules.auth.models import OAuthState, UserOAuth
 from app.modules.auth.service_auth import log_audit, upgrade_to_normal
 

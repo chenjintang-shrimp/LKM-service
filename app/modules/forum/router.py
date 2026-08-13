@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
@@ -14,15 +16,20 @@ from app.modules.forum.schemas import (
 )
 from app.modules.forum.service import (
     create_comment,
-    create_post as create_post_service,
-    delete_post as delete_post_service,
     get_forum_plan,
     get_post,
-    like_post as like_post_service,
     list_comments,
     list_posts,
 )
-from typing import Annotated
+from app.modules.forum.service import (
+    create_post as create_post_service,
+)
+from app.modules.forum.service import (
+    delete_post as delete_post_service,
+)
+from app.modules.forum.service import (
+    like_post as like_post_service,
+)
 
 router = APIRouter(prefix="/forum", tags=["forum"])
 

@@ -1,4 +1,4 @@
-from app.core.err import ErrCode, NS_AUTH, register
+from app.core.err import NS_AUTH, ErrCode, register
 
 
 class AuthErr(ErrCode):

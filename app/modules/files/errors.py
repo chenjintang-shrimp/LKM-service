@@ -1,4 +1,4 @@
-from app.core.err import ErrCode, NS_FILES, register
+from app.core.err import NS_FILES, ErrCode, register
 
 
 class FileErr(ErrCode):

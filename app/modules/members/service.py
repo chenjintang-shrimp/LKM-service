@@ -1,6 +1,6 @@
 from app.core.err import BizError
-from app.modules.members.errors import MemberErr
 from app.modules.common import ListData
+from app.modules.members.errors import MemberErr
 from app.modules.members.models import ALL_TYPES, MEMBER_LISTS, SUB_GROUP_MAPS
 from app.modules.members.schemas import Member
 

@@ -5,15 +5,20 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
 from app.modules.blog.models import BlogSeriesStatus
-from app.modules.columns.models import ColumnApplicationStatus, ColumnPostStatus, ColumnStatus
+from app.modules.columns.models import (
+    ColumnApplicationStatus,
+    ColumnPostStatus,
+    ColumnStatus,
+)
 
 if TYPE_CHECKING:
     from app.modules.auth.models import (
+        TOTP,
         PasskeyCredential,
         RecoveryCode,
         RefreshToken,
-        TOTP,
         UserOAuth,
     )
 

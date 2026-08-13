@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -27,7 +29,6 @@ from app.modules.blog.service import (
     update_series,
 )
 from app.modules.common import ApiResp, ListData
-from typing import Annotated
 
 router = APIRouter(prefix="/blog", tags=["blog"])
 

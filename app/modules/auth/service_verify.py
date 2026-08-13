@@ -8,10 +8,10 @@ import secrets
 from sqlalchemy import update as sa_update
 
 from app.core.err import BizError
-from app.modules.auth.errors import AuthErr
 from app.core.throttle import RateLimiter
 from app.db.models import now_iso
 from app.db.repo import consume_once, isolated_update
+from app.modules.auth.errors import AuthErr
 from app.modules.auth.models import EmailVerification, PhoneVerification
 
 _CODE_EXPIRE_MINUTES = 10
@@ -26,6 +26,7 @@ def generate_code() -> str:
 
 def hash_code(raw: str, purpose: str = "", contact: str = "", nonce: str = "") -> str:
     import hmac
+
     from app.core.config import settings
     pepper = settings.verification_code_pepper.encode()
     msg = f"{raw}:{purpose}:{contact}:{nonce}".encode("utf-8")

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy.orm import Session
 
@@ -42,7 +44,6 @@ from app.modules.auth.service_verify import (
     create_phone_verification,
 )
 from app.modules.common import ApiResp
-from typing import Annotated
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

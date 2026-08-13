@@ -1,6 +1,6 @@
+import app.modules.auth.models  # noqa: F401  确保认证表被注册
 from app.db.models import Base
 from app.db.session import get_engine
-import app.modules.auth.models  # noqa: F401  确保认证表被注册
 
 
 def init_db() -> None:

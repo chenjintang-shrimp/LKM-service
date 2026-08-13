@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.err import BizError
-from app.modules.files.errors import FileErr
 from app.db.models import LibraryFile, User
 from app.db.repo import get_or_raise
+from app.modules.files.errors import FileErr
 from app.modules.files.models import FILES_TABLE_PLAN
 from app.modules.files.schemas import FileCreate, FileInfo, PageData
 
