@@ -200,7 +200,7 @@ class ForumComment(Base):
     post: Mapped[ForumPost] = relationship(back_populates="comments")
     user: Mapped[User] = relationship(back_populates="forum_comments")
     parent: Mapped[ForumComment | None] = relationship(
-        remote_side=[id], back_populates="replies"
+        remote_side=[id], back_populates="replies"  # noqa: A003  自引用关系的 remote_side 惯用法
     )
     replies: Mapped[list[ForumComment]] = relationship(
         back_populates="parent", cascade="all, delete-orphan"
@@ -277,7 +277,7 @@ class BlogComment(Base):
     user: Mapped[User] = relationship()
     series: Mapped[BlogSeries] = relationship(back_populates="comments")
     parent: Mapped[BlogComment | None] = relationship(
-        remote_side=[id], back_populates="replies"
+        remote_side=[id], back_populates="replies"  # noqa: A003  自引用关系的 remote_side 惯用法
     )
     replies: Mapped[list[BlogComment]] = relationship(
         back_populates="parent", cascade="all, delete-orphan"

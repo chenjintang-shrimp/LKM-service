@@ -5,14 +5,14 @@ from app.modules.members.models import ALL_TYPES, MEMBER_LISTS, SUB_GROUP_MAPS
 from app.modules.members.schemas import Member
 
 
-def get_members(type: str, group: str | None = None) -> ListData[Member]:
+def get_members(type_: str, group: str | None = None) -> ListData[Member]:
     """根据 type 和可选的 group 查询成员列表。"""
     # 1) 直接成员列表
-    if type in MEMBER_LISTS:
-        return ListData(items=MEMBER_LISTS[type])
+    if type_ in MEMBER_LISTS:
+        return ListData(items=MEMBER_LISTS[type_])
 
     # 2) 子组映射
-    sg_map = SUB_GROUP_MAPS.get(type)
+    sg_map = SUB_GROUP_MAPS.get(type_)
     if sg_map is not None:
         if group is None:
             all_members: list[Member] = []
@@ -23,12 +23,12 @@ def get_members(type: str, group: str | None = None) -> ListData[Member]:
         if sg is None:
             raise BizError(
                 MemberErr.GROUP_NOT_FOUND,
-                detail=f"未知子组: {group}（{type} 下可用：{', '.join(sg_map.keys())}）",
+                detail=f"未知子组: {group}（{type_} 下可用：{', '.join(sg_map.keys())}）",
             )
         return ListData(items=sg.members)
 
     # 3) 未知 type
     raise BizError(
         MemberErr.GROUP_NOT_FOUND,
-        detail=f"未知数据组: {type}，可用：{', '.join(ALL_TYPES)}",
+        detail=f"未知数据组: {type_}，可用：{', '.join(ALL_TYPES)}",
     )
