@@ -76,7 +76,7 @@ def ensure_repo_has_commits(repo_name: str) -> bool:
 
 def get_file_tree(repo_name: str) -> list[dict]:
     out = _run_git(repo_name, "ls-tree", "-r", "--name-only", "HEAD")
-    lines = [l.strip() for l in out.splitlines() if l.strip()]
+    lines = [line.strip() for line in out.splitlines() if line.strip()]
     if not lines:
         return []
 
