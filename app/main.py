@@ -22,28 +22,25 @@ def _verify_production_secrets() -> None:
         return
 
     if settings.jwt_secret.startswith("change-me") or len(settings.jwt_secret) < 32:
-        print(
+        sys.stderr.write(
             "ERROR: Default or weak JWT secret detected. "
-            "Set LKM_JWT_SECRET to a random 64+ character value.",
-            file=sys.stderr,
+            "Set LKM_JWT_SECRET to a random 64+ character value.\n",
         )
         sys.exit(1)
 
     # JWT 签名密钥必须与 TOTP 加密密钥分开
     if settings.jwt_secret == getattr(settings, "totp_encryption_key", None):
-        print(
-            "ERROR: JWT_SECRET must be different from TOTP encryption key.",
-            file=sys.stderr,
+        sys.stderr.write(
+            "ERROR: JWT_SECRET must be different from TOTP encryption key.\n",
         )
         sys.exit(1)
 
     # TOTP 加密密钥不得使用默认值
     totp_key = getattr(settings, "totp_encryption_key", "")
     if not totp_key or totp_key.startswith("change-me") or len(totp_key) < 32:
-        print(
+        sys.stderr.write(
             "ERROR: Default or weak TOTP encryption key detected. "
-            "Set LKM_TOTP_ENCRYPTION_KEY to a random 64+ character value.",
-            file=sys.stderr,
+            "Set LKM_TOTP_ENCRYPTION_KEY to a random 64+ character value.\n",
         )
         sys.exit(1)
 
