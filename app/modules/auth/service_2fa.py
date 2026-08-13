@@ -89,15 +89,15 @@ def _check_and_consume_temp_token(db: Session, raw_token: str, user_id: int, txn
         db.add(usage)
         db.flush()
         sp.commit()
-    except IntegrityError:
+    except IntegrityError as e:
         sp.rollback()
         # 其他人已认领这个哈希值 —— 检查是否已消费
         existing = db.query(TempTokenUsage).filter(
             TempTokenUsage.token_hash == token_hash,
         ).first()
         if existing and existing.consumed:
-            raise BizError(AuthErr.TOKEN_INVALID, "Temp token already used")
-        raise BizError(AuthErr.TOKEN_INVALID, "Temp token conflict")
+            raise BizError(AuthErr.TOKEN_INVALID, "Temp token already used") from e
+        raise BizError(AuthErr.TOKEN_INVALID, "Temp token conflict") from e
 
     return payload
 

@@ -26,9 +26,9 @@ def _run_git(repo_name: str, *args: str) -> str:
         return result.stdout.decode("utf-8", errors="replace")
     except subprocess.CalledProcessError as e:
         detail = e.stderr.decode("utf-8", errors="replace").strip() or str(e)
-        raise BizError(BlogErr.GIT_ERROR, detail)
-    except FileNotFoundError:
-        raise BizError(BlogErr.GIT_ERROR, "git executable not found")
+        raise BizError(BlogErr.GIT_ERROR, detail) from e
+    except FileNotFoundError as e:
+        raise BizError(BlogErr.GIT_ERROR, "git executable not found") from e
 
 
 def init_bare_repo(repo_name: str) -> str:
@@ -50,7 +50,7 @@ def init_bare_repo(repo_name: str) -> str:
         )
     except subprocess.CalledProcessError as e:
         detail = e.stderr.decode("utf-8", errors="replace").strip() or str(e)
-        raise BizError(BlogErr.GIT_ERROR, detail)
+        raise BizError(BlogErr.GIT_ERROR, detail) from e
     return path
 
 

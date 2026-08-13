@@ -216,8 +216,8 @@ def _verify_ecdsa_signature(
 
     try:
         pubkey.verify(signature, signed_data, ec.ECDSA(hashes.SHA256()))
-    except InvalidSignature:
-        raise BizError(AuthErr.PASSKEY_VERIFICATION_FAILED, "Invalid signature")
+    except InvalidSignature as e:
+        raise BizError(AuthErr.PASSKEY_VERIFICATION_FAILED, "Invalid signature") from e
 
 
 def _signature_to_der(raw_sig: bytes) -> bytes:
@@ -420,8 +420,8 @@ def complete_passkey_login(db: Session, credential: dict) -> dict:
     try:
         pubkey = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), public_key_bytes)
         pubkey.verify(signature_der, signed_data, ec.ECDSA(hashes.SHA256()))
-    except (InvalidSignature, ValueError, Exception):
-        raise BizError(AuthErr.PASSKEY_VERIFICATION_FAILED, "Invalid signature")
+    except (InvalidSignature, ValueError, Exception) as e:
+        raise BizError(AuthErr.PASSKEY_VERIFICATION_FAILED, "Invalid signature") from e
 
     reported_count = auth_data["sign_count"]
     if reported_count > passkey.sign_count:

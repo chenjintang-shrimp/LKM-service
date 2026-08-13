@@ -85,9 +85,9 @@ def setup_2fa_temp(
             expires_at=expires_at(minutes=10),
         ))
         db.flush()
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise BizError(AuthErr.TOKEN_INVALID, "Setup token already used")
+        raise BizError(AuthErr.TOKEN_INVALID, "Setup token already used") from e
 
     return service_2fa.setup_2fa_begin(db, user_id)
 
