@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 
+from anyio import to_thread
 from fastapi import APIRouter, HTTPException, Request, Response
 
 from app.core.config import settings
@@ -20,6 +21,12 @@ git_router = APIRouter(prefix="/blog/git", tags=["blog-git"])
 
 @git_router.api_route("/{repo_name}.git/{rest:path}", methods=["GET", "POST"])
 async def git_http_backend(repo_name: str, rest: str, request: Request):
+    body = await request.body()
+    return await to_thread.run_sync(_git_backend, repo_name, rest, request, body)
+
+
+def _git_backend(repo_name: str, rest: str, request: Request, body: bytes) -> Response:
+    """在事件循环外执行 git http-backend（阻塞 I/O + 子进程）。"""
     root = os.path.abspath(settings.blog_repo_dir)
     repo_path = _repo_path(repo_name)
 
@@ -50,8 +57,6 @@ async def git_http_backend(repo_name: str, rest: str, request: Request):
                 db.close()
         except Exception as e:  # noqa: BLE001  认证解析失败时静默降级为未认证请求
             _log.debug("Basic auth skipped: %s", e)
-
-    body = await request.body()
 
     try:
         proc = subprocess.Popen(  # noqa: S603  repo_name 已经过 _REPO_NAME_RE 校验
