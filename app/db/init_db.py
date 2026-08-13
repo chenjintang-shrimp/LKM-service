@@ -1,4 +1,4 @@
-import app.modules.auth.models  # noqa: F401  确保认证表被注册
+import app.modules.auth.models
 from app.db.models import Base
 from app.db.session import get_engine
 

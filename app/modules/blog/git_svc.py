@@ -15,7 +15,7 @@ def _repo_path(repo_name: str) -> str:
 
 def _run_git(repo_name: str, *args: str) -> str:
     path = _repo_path(repo_name)
-    cmd = ["git", "--git-dir", path] + list(args)
+    cmd = ["git", "--git-dir", path, *args]
     try:
         result = subprocess.run(
             cmd,
