@@ -2,6 +2,7 @@
 
 import hashlib
 import secrets
+import secrets as _s
 from typing import Protocol, runtime_checkable
 
 from sqlalchemy.orm import Session
@@ -11,7 +12,13 @@ from app.core.err import BizError, CommonErr
 from app.db.models import Profile, User, expires_at, now_iso
 from app.db.repo import consume_once, get_or_raise, isolated_update
 from app.modules.auth.errors import AuthErr
-from app.modules.auth.models import TOTP, AuditLog, MagicLink, RefreshToken
+from app.modules.auth.models import (
+    TOTP,
+    AuditLog,
+    MagicLink,
+    PendingRegistration,
+    RefreshToken,
+)
 from app.modules.auth.providers.base import EmailProvider
 from app.modules.auth.schemas import (
     UserLoginPassword,
@@ -177,6 +184,7 @@ def register_local(db: Session, info: UserRegLocal) -> dict:
     return _create_auth_response(db, user)
 
 
+#TODO: 确认调用点并按需删除
 def _handle_duplicate_user_error(exc: Exception) -> None:
     """如果是唯一性违规，将 IntegrityError 重新抛出为 ALREADY_REGISTERED。"""
     from sqlalchemy.exc import IntegrityError
@@ -295,8 +303,6 @@ def _store_pending_normal_registration(
     email: str | None,
     phone: str | None,
 ) -> str:
-    from app.modules.auth.models import PendingRegistration
-    import secrets as _s
 
     txn_id = _s.token_hex(32)
     expiry = expires_at(minutes=15)
@@ -678,13 +684,13 @@ def revoke_all_refresh_tokens(db: Session, user_id: int) -> None:
 
 def log_audit(
     db: Session,
-    user_id: object,
+    user_id: int | None,
     action: str,
     detail: str | None = None,
     ip_address: str | None = None,
 ) -> None:
     """创建一条审计日志记录。"""
-    uid: int | None = int(user_id) if user_id is not None else None  # type: ignore[arg-type]
+    uid: int | None = user_id if user_id is not None else None
     entry = AuditLog(
         user_id=uid,
         action=action,
