@@ -40,6 +40,45 @@ reportUnannotatedClassAttribute = false
 reportUnusedCallResult = false
 reportUnusedImport = false
 
+[tool.ruff.lint]
+extend-select = [
+    "A",      # flake8-builtins: 内建名遮蔽
+    "ASYNC",  # flake8-async: async 中的阻塞调用
+    "B",      # flake8-bugbear: 常见 bug 模式
+    "BLE",    # flake8-blind-except: 盲 except
+    "C4",     # flake8-comprehensions: 推导式化简
+    "DTZ",    # flake8-datetimez: 时区安全
+    "FAST",   # fastapi: FastAPI 专用规则（Annotated 风格）
+    "I",      # isort: import 排序
+    "RUF",    # ruff 自有规则
+    "S",      # bandit: 安全
+    "SIM",    # flake8-simplify: 化简
+    "T20",    # flake8-print: 禁止 print
+    "UP",     # pyupgrade: 现代语法（3.13）
+    "W",      # pycodestyle 警告
+]
+ignore = [
+    "RUF001",  # 中文排版引号 “” 在文档字符串里是有意使用的
+    "RUF002",
+    "RUF003",
+    "S101",    # assert 作为内部不变量守卫，接受
+]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Header",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Body",
+    "fastapi.Form",
+    "fastapi.File",
+    "app.modules.auth.deps.RequireLevel",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
