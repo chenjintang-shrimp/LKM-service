@@ -29,7 +29,7 @@ def hash_code(raw: str, purpose: str = "", contact: str = "", nonce: str = "") -
 
     from app.core.config import settings
     pepper = settings.verification_code_pepper.encode()
-    msg = f"{raw}:{purpose}:{contact}:{nonce}".encode("utf-8")
+    msg = f"{raw}:{purpose}:{contact}:{nonce}".encode()
     return hmac.new(pepper, msg, hashlib.sha256).hexdigest()
 
 def _create_verification(

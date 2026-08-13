@@ -1,19 +1,14 @@
-from typing import Generic, TypeVar
-
 from pydantic import BaseModel
 
-T = TypeVar("T")
 
-
-class ApiResp(BaseModel, Generic[T]):
+class ApiResp[T](BaseModel):
     code: int
     msg: str
     data: T | None = None
 
 
-class ListData(BaseModel, Generic[T]):
+class ListData[T](BaseModel):
     items: list[T]
-
 
 class ModuleStatus(BaseModel):
     module: str

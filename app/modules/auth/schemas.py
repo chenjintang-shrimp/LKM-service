@@ -1,4 +1,3 @@
-import enum
 from enum import StrEnum
 from typing import Annotated
 
@@ -32,7 +31,7 @@ class ProfileUpdate(BaseModel):
     avatar: str | None = None
 
 
-class AccountLevel(str, enum.Enum):
+class AccountLevel(StrEnum):
     LOCAL = "local"
     NORMAL = "normal"
     ADMIN = "admin"

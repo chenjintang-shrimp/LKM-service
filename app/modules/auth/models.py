@@ -33,7 +33,7 @@ class RefreshToken(Base):
     created_at: Mapped[str] = mapped_column(Text, nullable=False, default=now_iso)
     revoked_at: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    user: Mapped["User"] = relationship(back_populates="refresh_tokens")
+    user: Mapped[User] = relationship(back_populates="refresh_tokens")
 
 
 class EmailVerification(Base):
@@ -98,7 +98,7 @@ class UserOAuth(Base):
     provider_email: Mapped[str | None] = mapped_column(String(200), nullable=True)
     created_at: Mapped[str] = mapped_column(Text, nullable=False, default=now_iso)
 
-    user: Mapped["User"] = relationship(back_populates="oauth_bindings")
+    user: Mapped[User] = relationship(back_populates="oauth_bindings")
 
 
 class TOTP(Base):
@@ -112,7 +112,7 @@ class TOTP(Base):
     last_counter: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[str] = mapped_column(Text, nullable=False, default=now_iso)
 
-    user: Mapped["User"] = relationship(back_populates="totp")
+    user: Mapped[User] = relationship(back_populates="totp")
 
 
 class RecoveryCode(Base):
@@ -127,7 +127,7 @@ class RecoveryCode(Base):
     used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[str] = mapped_column(Text, nullable=False, default=now_iso)
 
-    user: Mapped["User"] = relationship(back_populates="recovery_codes")
+    user: Mapped[User] = relationship(back_populates="recovery_codes")
 
 
 class TempTokenUsage(Base):
@@ -206,7 +206,7 @@ class PasskeyCredential(Base):
     device_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     created_at: Mapped[str] = mapped_column(Text, nullable=False, default=now_iso)
 
-    user: Mapped["User"] = relationship(back_populates="passkey_credentials")
+    user: Mapped[User] = relationship(back_populates="passkey_credentials")
 
 
 class AuditLog(Base):

@@ -1,9 +1,6 @@
 import json
-from typing import Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
-T = TypeVar("T")
 
 
 class FileCreate(BaseModel):
@@ -44,7 +41,7 @@ class FileInfo(BaseModel):
             return []
 
 
-class PageData(BaseModel, Generic[T]):
+class PageData[T](BaseModel):
     items: list[T]
     total: int
     page: int

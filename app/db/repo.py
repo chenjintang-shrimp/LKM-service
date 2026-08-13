@@ -6,18 +6,14 @@
   isolated_update—— 在 savepoint 里更新，调用方事务回滚也不影响
 """
 
-from typing import TypeVar
-
 from sqlalchemy import update as sa_update
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from app.core.err import BizError, ErrCode
 
-M = TypeVar("M")
 
-
-def get_or_raise(
+def get_or_raise[M](
     db: Session,
     model: type[M],
     errcode: ErrCode,
@@ -31,7 +27,7 @@ def get_or_raise(
     return obj
 
 
-def consume_once(
+def consume_once[M](
     db: Session,
     model: type[M],
     values: dict,
