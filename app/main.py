@@ -1,6 +1,6 @@
 import sys
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
@@ -61,10 +61,8 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     yield  # type: ignore[redefined-outer-name]
 
     cleanup_task.cancel()
-    try:
+    with suppress(asyncio.CancelledError):
         await cleanup_task
-    except asyncio.CancelledError:
-        pass
 
     from app.db.session import dispose_engine
     dispose_engine()

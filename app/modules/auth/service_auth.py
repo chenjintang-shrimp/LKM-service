@@ -269,10 +269,7 @@ def register_by_verify(db: Session, field: str, value: str) -> dict:
         return _create_auth_response(db, existing)  # type: ignore[arg-type]
 
     # 从值中派生用户名
-    if field == "email":
-        username = value.split("@")[0]
-    else:
-        username = f"user_{value[-6:]}"
+    username = value.split("@")[0] if field == "email" else f"user_{value[-6:]}"
 
     # 确保唯一性
     suffix = 1

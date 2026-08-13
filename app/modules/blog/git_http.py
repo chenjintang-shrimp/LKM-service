@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import subprocess
+from contextlib import suppress
 
 from anyio import to_thread
 from fastapi import APIRouter, HTTPException, Request, Response
@@ -84,13 +85,10 @@ def _git_backend(repo_name: str, rest: str, request: Request, body: bytes) -> Re
     status_code = 200
     content_type = "application/octet-stream"
     response_headers: dict[str, str] = {}
-
     for line in header_section.split("\r\n"):
         if line.lower().startswith("status:"):
-            try:
+            with suppress(ValueError, IndexError):
                 status_code = int(line.split(":", 1)[1].strip().split()[0])
-            except (ValueError, IndexError):
-                pass
         elif ":" in line:
             key, value = line.split(":", 1)
             response_headers[key.strip()] = value.strip()
