@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 
@@ -6,8 +7,13 @@ from app.core.config import settings
 from app.core.err import BizError, CommonErr
 from app.modules.blog.errors import BlogErr
 
+_REPO_NAME_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+_GIT_BIN = shutil.which("git") or "git"
+
 
 def _repo_path(repo_name: str) -> str:
+    if not _REPO_NAME_RE.fullmatch(repo_name):
+        raise BizError(BlogErr.GIT_ERROR, f"Invalid repository name: {repo_name!r}")
     base = os.path.abspath(settings.blog_repo_dir)
     os.makedirs(base, exist_ok=True)
     return os.path.join(base, f"{repo_name}.git")
@@ -15,9 +21,9 @@ def _repo_path(repo_name: str) -> str:
 
 def _run_git(repo_name: str, *args: str) -> str:
     path = _repo_path(repo_name)
-    cmd = ["git", "--git-dir", path, *args]
+    cmd = [_GIT_BIN, "--git-dir", path, *args]
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603  repo_name 已经过 _REPO_NAME_RE 校验
             cmd,
             capture_output=True,
             timeout=30,
@@ -36,14 +42,14 @@ def init_bare_repo(repo_name: str) -> str:
     if os.path.exists(path):
         raise BizError(BlogErr.GIT_ERROR, f"Repository '{repo_name}' already exists")
     try:
-        subprocess.run(
-            ["git", "init", "--bare", path],
+        subprocess.run(  # noqa: S603  repo_name 已经过 _REPO_NAME_RE 校验
+            [_GIT_BIN, "init", "--bare", path],
             capture_output=True,
             timeout=10,
             check=True,
         )
-        subprocess.run(
-            ["git", "--git-dir", path, "config", "http.receivepack", "true"],
+        subprocess.run(  # noqa: S603  repo_name 已经过 _REPO_NAME_RE 校验
+            [_GIT_BIN, "--git-dir", path, "config", "http.receivepack", "true"],
             capture_output=True,
             timeout=10,
             check=True,

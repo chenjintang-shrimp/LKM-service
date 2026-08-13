@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     db_password: str = ""
 
     # JWT 签名密钥 — 所有非测试环境必须覆盖此值
-    jwt_secret: str = "change-me-to-a-random-secret-thats-at-least-32-bytes-long"
+    jwt_secret: str = "change-me-to-a-random-secret-thats-at-least-32-bytes-long"  # noqa: S105  占位密钥，非测试环境必须覆盖
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7

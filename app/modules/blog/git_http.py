@@ -1,5 +1,7 @@
 import base64
+import logging
 import os
+import shutil
 import subprocess
 
 from fastapi import APIRouter, HTTPException, Request, Response
@@ -8,6 +10,10 @@ from app.core.config import settings
 from app.db.models import User
 from app.db.session import new_session
 from app.modules.auth.security import verifypwd
+from app.modules.blog.git_svc import _repo_path
+
+_log = logging.getLogger(__name__)
+_GIT_BIN = shutil.which("git") or "git"
 
 git_router = APIRouter(prefix="/blog/git", tags=["blog-git"])
 
@@ -15,7 +21,7 @@ git_router = APIRouter(prefix="/blog/git", tags=["blog-git"])
 @git_router.api_route("/{repo_name}.git/{rest:path}", methods=["GET", "POST"])
 async def git_http_backend(repo_name: str, rest: str, request: Request):
     root = os.path.abspath(settings.blog_repo_dir)
-    repo_path = os.path.join(root, f"{repo_name}.git")
+    repo_path = _repo_path(repo_name)
 
     if not os.path.isdir(repo_path):
         raise HTTPException(status_code=404, detail="Repository not found")
@@ -42,14 +48,14 @@ async def git_http_backend(repo_name: str, rest: str, request: Request):
                     env["REMOTE_USER"] = username
             finally:
                 db.close()
-        except Exception:  # noqa: BLE001  认证解析失败时静默降级为未认证请求
-            pass
+        except Exception as e:  # noqa: BLE001  认证解析失败时静默降级为未认证请求
+            _log.debug("Basic auth skipped: %s", e)
 
     body = await request.body()
 
     try:
-        proc = subprocess.Popen(
-            ["git", "http-backend"],
+        proc = subprocess.Popen(  # noqa: S603  repo_name 已经过 _REPO_NAME_RE 校验
+            [_GIT_BIN, "http-backend"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
