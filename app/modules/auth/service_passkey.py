@@ -96,7 +96,7 @@ async def cleanup_expired_challenges() -> None:
                 _log.exception("Failed to clean up expired passkey challenges")
             finally:
                 db.close()
-        except Exception:
+        except Exception:  # noqa: BLE001  后台清理任务必须兜底保活
             _log.exception("cleanup_expired_challenges: unexpected error outside DB session")
 
 

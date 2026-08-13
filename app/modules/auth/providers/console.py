@@ -41,7 +41,7 @@ class ConsoleEmailProvider(EmailProvider):
         try:
             parsed = urlparse(link)
             safe = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
-        except Exception:
+        except ValueError:
             safe = "[redacted]"
         logger.info("[EMAIL] To: %s | Magic Link sent: %s", email, safe)
 

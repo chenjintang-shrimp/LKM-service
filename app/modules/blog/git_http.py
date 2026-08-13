@@ -42,7 +42,7 @@ async def git_http_backend(repo_name: str, rest: str, request: Request):
                     env["REMOTE_USER"] = username
             finally:
                 db.close()
-        except Exception:
+        except Exception:  # noqa: BLE001  认证解析失败时静默降级为未认证请求
             pass
 
     body = await request.body()
