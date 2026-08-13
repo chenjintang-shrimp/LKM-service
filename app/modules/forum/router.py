@@ -22,11 +22,12 @@ from app.modules.forum.service import (
     list_comments,
     list_posts,
 )
+from typing import Annotated
 
 router = APIRouter(prefix="/forum", tags=["forum"])
 
 
-@router.get("/status", response_model=ModuleStatus)
+@router.get("/status")
 def forum_status() -> ModuleStatus:
     return ModuleStatus(
         module="forum",
@@ -39,10 +40,10 @@ def forum_status() -> ModuleStatus:
 @router.get("/posts", response_model=ApiResp[PageData[PostInfo]])
 @respond
 def get_posts(
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=100),
-    category_id: str | None = Query(default=None, max_length=50),
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    category_id: Annotated[str | None, Query(max_length=50)] = None,
 ):
     return list_posts(db, page=page, limit=limit, category_id=category_id)
 
@@ -51,15 +52,15 @@ def get_posts(
 @respond
 def create_forum_post(
     info: PostCreate,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     return create_post_service(db, cur.id, info)
 
 
 @router.get("/posts/{post_id}", response_model=ApiResp[PostInfo])
 @respond
-def get_post_detail(post_id: int, db: Session = Depends(get_session)):
+def get_post_detail(post_id: int, db: Annotated[Session, Depends(get_session)]):
     return get_post(db, post_id, bump_view=True)
 
 
@@ -67,8 +68,8 @@ def get_post_detail(post_id: int, db: Session = Depends(get_session)):
 @respond
 def like_forum_post(
     post_id: int,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     return {"like_count": like_post_service(db, post_id)}
 
@@ -77,8 +78,8 @@ def like_forum_post(
 @respond
 def delete_forum_post(
     post_id: int,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     delete_post_service(db, post_id, cur.id)
     return {"ok": True}
@@ -88,9 +89,9 @@ def delete_forum_post(
 @respond
 def get_post_comments(
     post_id: int,
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ):
     return list_comments(db, post_id, page=page, limit=limit)
 
@@ -100,7 +101,7 @@ def get_post_comments(
 def create_post_comment(
     post_id: int,
     info: CommentCreate,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     return create_comment(db, post_id, cur.id, info)

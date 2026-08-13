@@ -26,14 +26,15 @@ from app.modules.auth.schemas import (
     PasskeyRegistrationOptionsResponse,
 )
 from app.modules.common import ApiResp
+from typing import Annotated
 
 router = APIRouter(prefix="/auth/passkey", tags=["auth-passkey"])
 
 @router.post("/register/begin", response_model=ApiResp[PasskeyRegistrationOptionsResponse])
 @respond
 def begin_passkey_registration(
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """开始 Passkey 注册。返回 PublicKeyCredentialCreationOptions。"""
     result = service_passkey.begin_passkey_registration(db, cur.id)
@@ -43,8 +44,8 @@ def begin_passkey_registration(
 @respond
 def complete_passkey_registration(
     body: PasskeyRegisterCompleteRequest,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """使用客户端传来的凭据完成 Passkey 注册。"""
     result = service_passkey.complete_passkey_registration(db, cur.id, body.model_dump())
@@ -53,7 +54,7 @@ def complete_passkey_registration(
 @router.post("/login/begin", response_model=ApiResp[PasskeyLoginOptionsResponse])
 @respond
 def begin_passkey_login(
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """开始 Passkey 登录。返回 PublicKeyCredentialRequestOptions。"""
     result = service_passkey.begin_passkey_login(db)
@@ -63,7 +64,7 @@ def begin_passkey_login(
 @respond
 def complete_passkey_login(
     body: PasskeyLoginCompleteRequest,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """使用客户端传来的凭据完成 Passkey 登录。"""
     result = service_passkey.complete_passkey_login(db, body.model_dump())
@@ -72,8 +73,8 @@ def complete_passkey_login(
 @router.get("/credentials", response_model=ApiResp[list[PasskeyCredentialItem]])
 @respond
 def list_credentials(
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """列出当前用户的所有 Passkey 凭据。"""
     result = service_passkey.list_credentials(db, cur.id)
@@ -83,8 +84,8 @@ def list_credentials(
 @respond
 def delete_credential(
     cred_id: int,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """通过数据库 ID 删除一个 Passkey 凭据。"""
     result = service_passkey.delete_credential(db, cur.id, cred_id)

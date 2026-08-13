@@ -13,11 +13,12 @@ from app.modules.files.service import (
     get_files_plan,
     list_files,
 )
+from typing import Annotated
 
 router = APIRouter(prefix="/files", tags=["files"])
 
 
-@router.get("/status", response_model=ModuleStatus)
+@router.get("/status")
 def files_status() -> ModuleStatus:
     return ModuleStatus(
         module="files",
@@ -30,12 +31,12 @@ def files_status() -> ModuleStatus:
 @router.get("", response_model=ApiResp[PageData[FileInfo]])
 @respond
 def get_files(
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=100),
-    category_id: str | None = Query(default=None, max_length=50),
-    status: str | None = Query(default=None, max_length=20),
-    sort: str = Query(default="newest"),
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    category_id: Annotated[str | None, Query(max_length=50)] = None,
+    status: Annotated[str | None, Query(max_length=20)] = None,
+    sort: Annotated[str, Query()] = "newest",
 ):
     return list_files(db, page=page, limit=limit, category_id=category_id, status=status, sort=sort)
 
@@ -43,12 +44,12 @@ def get_files(
 @router.post("", response_model=ApiResp[FileInfo])
 @respond
 def upload_file(
-    file: UploadFile = File(...),
-    category_id: str = Form(default=""),
-    description: str = Form(default=""),
-    tags: str = Form(default="[]"),
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    file: Annotated[UploadFile, File()],
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
+    category_id: Annotated[str, Form()] = "",
+    description: Annotated[str, Form()] = "",
+    tags: Annotated[str, Form()] = "[]",
 ):
     import json
 
@@ -69,7 +70,7 @@ def upload_file(
 
 @router.get("/{file_id}", response_model=ApiResp[FileInfo])
 @respond
-def get_file_detail(file_id: int, db: Session = Depends(get_session)):
+def get_file_detail(file_id: int, db: Annotated[Session, Depends(get_session)]):
     return get_file(db, file_id, bump_view=True)
 
 
@@ -77,7 +78,7 @@ def get_file_detail(file_id: int, db: Session = Depends(get_session)):
 @respond
 def download_file(
     file_id: int,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     return {"download_count": bump_download(db, file_id)}

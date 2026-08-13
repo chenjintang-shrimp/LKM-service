@@ -42,18 +42,19 @@ from app.modules.auth.service_verify import (
     create_phone_verification,
 )
 from app.modules.common import ApiResp
+from typing import Annotated
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.get("/me", response_model=ApiResp[CurrentUser])
 @respond
-def get_me(cur: CurrentUser = Depends(get_current_user)):
+def get_me(cur: Annotated[CurrentUser, Depends(get_current_user)]):
     return cur
 
 
 @router.get("/{user_id}", response_model=ApiResp[ProfileInfo])
 @respond
-def get_user(user_id: int, db: Session = Depends(get_session)):
+def get_user(user_id: int, db: Annotated[Session, Depends(get_session)]):
     return get_profile(db, user_id)
 
 
@@ -62,8 +63,8 @@ def get_user(user_id: int, db: Session = Depends(get_session)):
 def edit_profile(
     user_id: int,
     info: ProfileUpdate,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     if cur.id != user_id:
         raise BizError(CommonErr.FORBIDDEN)
@@ -72,7 +73,7 @@ def edit_profile(
 
 @router.post("/reg/local", response_model=ApiResp[AuthTokenData])
 @respond
-def register_local(info: UserRegLocal, db: Session = Depends(get_session)):
+def register_local(info: UserRegLocal, db: Annotated[Session, Depends(get_session)]):
     return service_auth.register_local(db, info)
 
 
@@ -81,7 +82,7 @@ def register_local(info: UserRegLocal, db: Session = Depends(get_session)):
 def register_normal_with_password_route(
     info: UserRegNormal,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """发起普通注册 """
     if not info.email and not info.phone:
@@ -120,10 +121,10 @@ def register_normal_with_password_route(
 @router.post("/reg/normal/verify", response_model=ApiResp[AuthTokenData])
 @respond
 def register_normal_verify(
+    db: Annotated[Session, Depends(get_session)],
     txn_id: str,
     email_code: str | None = None,
     phone_code: str | None = None,
-    db: Session = Depends(get_session),
 ):
     """使用用户名+密码+联系方式完成普通注册。"""
     return _consume_pending_normal_registration(
@@ -136,7 +137,7 @@ def register_normal_verify(
 def register_phone(
     info: UserRegByPhone,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """发起仅手机号的注册。发送短信验证码。"""
     check_code_rate_limit(f"reg:phone:{info.phone}", max_count=5, window=3600)
@@ -147,7 +148,7 @@ def register_phone(
 
 @router.post("/reg/phone/verify", response_model=ApiResp[AuthTokenData])
 @respond
-def register_phone_verify(phone: str, code: str, db: Session = Depends(get_session)):
+def register_phone_verify(phone: str, code: str, db: Annotated[Session, Depends(get_session)]):
     """完成仅手机号的注册 — 创建一个普通账号（无密码）。"""
     check_code_rate_limit(f"reg:phone:verify:{phone}", max_count=5, window=3600)
     consume_phone_code(db, phone, code, "register")
@@ -159,7 +160,7 @@ def register_phone_verify(phone: str, code: str, db: Session = Depends(get_sessi
 def register_email(
     info: UserRegByEmail,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """发起仅邮箱的注册。发送邮箱验证码。"""
     check_code_rate_limit(f"reg:email:{info.email}", max_count=5, window=3600)
@@ -170,7 +171,7 @@ def register_email(
 
 @router.post("/reg/email/verify", response_model=ApiResp[AuthTokenData])
 @respond
-def register_email_verify(email: str, code: str, db: Session = Depends(get_session)):
+def register_email_verify(email: str, code: str, db: Annotated[Session, Depends(get_session)]):
     """完成仅邮箱的注册 — 创建一个普通账号（无密码）。"""
     check_code_rate_limit(f"reg:email:verify:{email}", max_count=5, window=3600)
     consume_email_code(db, email, code, "register")
@@ -182,7 +183,7 @@ def register_email_verify(email: str, code: str, db: Session = Depends(get_sessi
 def login_code_request(
     contact: str,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """请求登录验证码。自动检测邮箱还是手机号。"""
 
@@ -215,7 +216,7 @@ def login_code_request(
 def login_code(
     contact: str,
     code: str,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """使用验证码登录。仅限普通/管理员用户。"""
     check_code_rate_limit(f"login:code:verify:{contact}", max_count=5, window=3600)
@@ -224,20 +225,20 @@ def login_code(
 
 @router.post("/login/password", response_model=ApiResp[AuthTokenData])
 @respond
-def login_password_route(info: UserLoginPassword, db: Session = Depends(get_session)):
+def login_password_route(info: UserLoginPassword, db: Annotated[Session, Depends(get_session)]):
     return service_auth.login_password(db, info)
 
 
 @router.post("/refresh", response_model=ApiResp[TokenPair])
 @respond
-def refresh_access_token_route(info: RefreshRequest, db: Session = Depends(get_session)):
+def refresh_access_token_route(info: RefreshRequest, db: Annotated[Session, Depends(get_session)]):
     check_code_rate_limit("token:refresh:global", max_count=30, window=60)
     return service_auth.refresh_access_token(db, info.refresh_token)
 
 
 @router.post("/logout", response_model=ApiResp[MessageResponse])
 @respond
-def logout_route(cur: CurrentUser = Depends(get_current_user), db: Session = Depends(get_session)):
+def logout_route(cur: Annotated[CurrentUser, Depends(get_current_user)], db: Annotated[Session, Depends(get_session)]):
     service_auth.revoke_all_refresh_tokens(db, cur.id)
     return {"message": "Logged out successfully"}
 
@@ -246,9 +247,9 @@ def logout_route(cur: CurrentUser = Depends(get_current_user), db: Session = Dep
 @respond
 def magic_link_request(
     background_tasks: BackgroundTasks,
-    email: str = Query(...),
-    email_provider: EmailProvider = Depends(get_email_provider),
-    db: Session = Depends(get_session),
+    email: Annotated[str, Query()],
+    email_provider: Annotated[EmailProvider, Depends(get_email_provider)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     service_auth.request_magic_link(
         db,
@@ -265,7 +266,7 @@ def magic_link_request(
 @respond
 def magic_link_verify(
     token: str,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     check_code_rate_limit("magic-link:verify:global", max_count=10, window=3600)
     return service_auth.verify_magic_link(db, token, purpose="login")

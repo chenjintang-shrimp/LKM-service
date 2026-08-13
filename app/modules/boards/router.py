@@ -5,7 +5,7 @@ from app.modules.common import ModuleStatus
 router = APIRouter(prefix="/boards", tags=["boards"])
 
 
-@router.get("/status", response_model=ModuleStatus)
+@router.get("/status")
 async def boards_status() -> ModuleStatus:
     return ModuleStatus(
         module="boards",

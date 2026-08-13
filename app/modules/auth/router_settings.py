@@ -34,6 +34,7 @@ from app.modules.auth.service_verify import (
     create_phone_verification,
 )
 from app.modules.common import ApiResp
+from typing import Annotated
 
 router = APIRouter(prefix="/auth/settings", tags=["auth-settings"])
 
@@ -61,9 +62,9 @@ class BindPhoneVerify(BaseModel):
 def bind_email_request(
     body: BindEmailRequest,
     background_tasks: BackgroundTasks,
-    _cur: CurrentUser = Depends(get_current_user),
-    email_provider: EmailProvider = Depends(get_email_provider),
-    db: Session = Depends(get_session),
+    _cur: Annotated[CurrentUser, Depends(get_current_user)],
+    email_provider: Annotated[EmailProvider, Depends(get_email_provider)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """请求用于绑定的邮箱验证码。"""
     # 检查邮箱是否已被占用
@@ -84,8 +85,8 @@ def bind_email_request(
 @respond
 def bind_email_verify(
     body: BindEmailVerify,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """验证邮箱验证码并将邮箱绑定到当前用户。"""
     consume_email_code(db, body.email, body.code, _BIND_PURPOSE)
@@ -110,9 +111,9 @@ def bind_email_verify(
 def bind_phone_request(
     body: BindPhoneRequest,
     background_tasks: BackgroundTasks,
-    _cur: CurrentUser = Depends(get_current_user),
-    sms_provider: SmsProvider = Depends(get_sms_provider),
-    db: Session = Depends(get_session),
+    _cur: Annotated[CurrentUser, Depends(get_current_user)],
+    sms_provider: Annotated[SmsProvider, Depends(get_sms_provider)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """请求用于绑定的短信验证码。"""
     # 检查手机号是否已被占用
@@ -133,8 +134,8 @@ def bind_phone_request(
 @respond
 def bind_phone_verify(
     body: BindPhoneVerify,
-    cur: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    cur: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_session)],
 ):
     """验证手机验证码并将手机号绑定到当前用户。"""
     consume_phone_code(db, body.phone, body.code, _BIND_PURPOSE)

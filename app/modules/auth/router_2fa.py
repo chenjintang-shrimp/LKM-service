@@ -30,6 +30,7 @@ from app.modules.auth.schemas import (
     TOTPVerifyResponse,
 )
 from app.modules.common import ApiResp
+from typing import Annotated
 
 router = APIRouter(prefix="/auth/2fa", tags=["auth-2fa"])
 
@@ -55,8 +56,8 @@ def _decode_setup_temp_token(temp_token: str) -> tuple[str, int]:
 @router.post("/setup/begin", response_model=ApiResp[TOTPSetupBeginData])
 @respond
 def setup_2fa_begin(
+    db: Annotated[Session, Depends(get_session)],
     cur: CurrentUser = RequireLevel("normal"),
-    db: Session = Depends(get_session),
 ):
     """开始 TOTP 设置。返回密钥和二维码 URI。"""
     result = service_2fa.setup_2fa_begin(db, cur.id)
@@ -66,7 +67,7 @@ def setup_2fa_begin(
 @respond
 def setup_2fa_temp(
     temp_token: str,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """使用登录时获得的临时令牌开始 TOTP 设置（管理员强制设置）。"""
     from sqlalchemy.exc import IntegrityError
@@ -93,7 +94,7 @@ def setup_2fa_temp(
 def setup_2fa_complete_temp(
     temp_token: str,
     code: str,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """使用临时令牌完成 TOTP 设置（管理员强制设置路径）。"""
     token_hash, user_id = _decode_setup_temp_token(temp_token)
@@ -138,8 +139,8 @@ def _issue_admin_setup_tokens(db: Session, user) -> tuple[str, str]:
 @respond
 def setup_2fa_complete(
     body: TOTPSetupCompleteRequest,
+    db: Annotated[Session, Depends(get_session)],
     cur: CurrentUser = RequireLevel("normal"),
-    db: Session = Depends(get_session),
 ):
     """通过验证 TOTP 码完成 TOTP 设置。返回恢复码。"""
     result = service_2fa.setup_2fa_complete(db, cur.id, body.code)
@@ -148,8 +149,8 @@ def setup_2fa_complete(
 @router.post("/setup/confirm", response_model=ApiResp[TOTPConfirmResponse])
 @respond
 def confirm_recovery_codes(
+    db: Annotated[Session, Depends(get_session)],
     cur: CurrentUser = RequireLevel("normal"),
-    db: Session = Depends(get_session),
 ):
     """确认用户已保存其恢复码。"""
     return service_2fa.confirm_recovery_codes_saved(db, cur.id)
@@ -158,7 +159,7 @@ def confirm_recovery_codes(
 @respond
 def verify_2fa(
     body: TOTPVerifyRequest,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """在登录时使用临时令牌和 TOTP / 恢复码验证 2FA。"""
     from app.modules.auth.service_verify import check_code_rate_limit
@@ -176,8 +177,8 @@ def verify_2fa(
 @respond
 def disable_2fa(
     body: TOTPDisableRequest,
+    db: Annotated[Session, Depends(get_session)],
     cur: CurrentUser = RequireLevel("normal"),
-    db: Session = Depends(get_session),
 ):
     """为当前用户禁用 2FA。需要有效的 TOTP 码。"""
     result = service_2fa.disable_2fa(db, cur.id, body.code)

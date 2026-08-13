@@ -36,6 +36,7 @@ from app.modules.auth.schemas import (
     RecoverRequires2FAResponse,
 )
 from app.modules.common import ApiResp
+from typing import Annotated
 
 router = APIRouter(prefix="/auth/recover", tags=["auth-recovery"])
 
@@ -79,7 +80,7 @@ class RecoverMagicLinkVerifyRequest(BaseModel):
 
 @router.post("/check", response_model=ApiResp[RecoverCheckResponse])
 @respond
-def recover_check(info: RecoverCheckRequest, db: Session = Depends(get_session)):
+def recover_check(info: RecoverCheckRequest, db: Annotated[Session, Depends(get_session)]):
     return service_recovery.check_recovery_methods(db, info.account)
 
 
@@ -88,7 +89,7 @@ def recover_check(info: RecoverCheckRequest, db: Session = Depends(get_session))
 def recover_phone(
     info: RecoverPhoneRequest,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     check_code_rate_limit(f"recover:phone:{info.phone}", max_count=5, window=3600)
     code, _ = create_phone_verification(db, info.phone, "reset")
@@ -99,7 +100,7 @@ def recover_phone(
 @router.post("/phone/verify", response_model=ApiResp[RecoverRequires2FAResponse])
 @respond
 def recover_phone_verify(
-    info: RecoverPhoneVerifyRequest, db: Session = Depends(get_session)
+    info: RecoverPhoneVerifyRequest, db: Annotated[Session, Depends(get_session)]
 ):
     check_code_rate_limit(f"recover:phone:verify:{info.phone}", max_count=5, window=3600)
     return service_recovery.recover_by_phone(
@@ -112,7 +113,7 @@ def recover_phone_verify(
 def recover_email(
     info: RecoverEmailRequest,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     check_code_rate_limit(f"recover:email:{info.email}", max_count=5, window=3600)
     code, _ = create_email_verification(db, info.email, "reset")
@@ -123,7 +124,7 @@ def recover_email(
 @router.post("/email/verify", response_model=ApiResp[RecoverRequires2FAResponse])
 @respond
 def recover_email_verify(
-    info: RecoverEmailVerifyRequest, db: Session = Depends(get_session)
+    info: RecoverEmailVerifyRequest, db: Annotated[Session, Depends(get_session)]
 ):
     check_code_rate_limit(f"recover:email:verify:{info.email}", max_count=5, window=3600)
     return service_recovery.recover_by_email_code(
@@ -136,8 +137,8 @@ def recover_email_verify(
 def recover_magic_link(
     info: RecoverMagicLinkRequest,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
-    email_provider: EmailProvider = Depends(get_email_provider),
+    db: Annotated[Session, Depends(get_session)],
+    email_provider: Annotated[EmailProvider, Depends(get_email_provider)],
 ):
     request_magic_link(
         db,
@@ -153,7 +154,7 @@ def recover_magic_link(
 @router.post("/magic-link/verify", response_model=ApiResp[RecoverRequires2FAResponse])
 @respond
 def recover_magic_link_verify(
-    info: RecoverMagicLinkVerifyRequest, db: Session = Depends(get_session)
+    info: RecoverMagicLinkVerifyRequest, db: Annotated[Session, Depends(get_session)]
 ):
     check_code_rate_limit("recover:magic-link:verify:global", max_count=10, window=3600)
     return service_recovery.recover_by_magic_link(
@@ -173,7 +174,7 @@ class RecoverUserCompleteRequest(BaseModel):
 @router.post("/verify-totp", response_model=ApiResp[AdminRecoverVerifyTOTPResponse])
 @respond
 def recover_user_verify_totp(
-    info: RecoverUserVerifyTOTPRequest, db: Session = Depends(get_session)
+    info: RecoverUserVerifyTOTPRequest, db: Annotated[Session, Depends(get_session)]
 ):
     """确认用户恢复事务的 2FA。需要用户在完成 2FA 后从 /auth/2fa/verify 获取的 temp_token。"""
     return service_recovery.recover_admin_verify_totp(db, info.txn_id, info.temp_token)
@@ -182,7 +183,7 @@ def recover_user_verify_totp(
 @router.post("/complete", response_model=ApiResp[MessageResponse])
 @respond
 def recover_user_complete(
-    info: RecoverUserCompleteRequest, db: Session = Depends(get_session)
+    info: RecoverUserCompleteRequest, db: Annotated[Session, Depends(get_session)]
 ):
     """使用新密码完成用户恢复。需要已验证的联系方式+2FA。"""
     return service_recovery.recover_user_complete(db, info.txn_id, info.new_password)
@@ -211,7 +212,7 @@ class RecoverAdminCompleteRequest(BaseModel):
 def recover_admin_begin(
     info: RecoverAdminRequest,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_session),
+    db: Annotated[Session, Depends(get_session)],
 ):
     """第1步：发起管理员恢复。服务层负责生成并发送验证码。"""
     return service_recovery.recover_admin_begin(db, info.contact, background_tasks=background_tasks)
@@ -220,7 +221,7 @@ def recover_admin_begin(
 @router.post("/admin/verify-contact", response_model=ApiResp[AdminRecoverVerifyContactResponse])
 @respond
 def recover_admin_verify_contact(
-    info: RecoverAdminVerifyContactRequest, db: Session = Depends(get_session)
+    info: RecoverAdminVerifyContactRequest, db: Annotated[Session, Depends(get_session)]
 ):
     """第2步：验证联系方式验证码。返回用于 2FA 的 temp_token。"""
     check_code_rate_limit(f"recover:admin:verify-contact:{info.txn_id}", max_count=3, window=600)
@@ -230,7 +231,7 @@ def recover_admin_verify_contact(
 @router.post("/admin/verify-totp", response_model=ApiResp[AdminRecoverVerifyTOTPResponse])
 @respond
 def recover_admin_verify_totp(
-    info: RecoverAdminVerifyTOTPRequest, db: Session = Depends(get_session)
+    info: RecoverAdminVerifyTOTPRequest, db: Annotated[Session, Depends(get_session)]
 ):
     """第3步：确认 2FA 已完成。需要从 /auth/2fa/verify 获取的 temp_token。"""
     return service_recovery.recover_admin_verify_totp(db, info.txn_id, info.temp_token)
@@ -239,7 +240,7 @@ def recover_admin_verify_totp(
 @router.post("/admin/complete", response_model=ApiResp[MessageResponse])
 @respond
 def recover_admin_complete(
-    info: RecoverAdminCompleteRequest, db: Session = Depends(get_session)
+    info: RecoverAdminCompleteRequest, db: Annotated[Session, Depends(get_session)]
 ):
     """第4步：设置新密码。需要前面所有步骤已完成。"""
     return service_recovery.recover_admin_complete(db, info.txn_id, info.new_password)
